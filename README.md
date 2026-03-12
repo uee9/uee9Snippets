@@ -64,3 +64,8 @@ if (is_mac) {
 }
 
 ```
+## Docker multi-arch container builds:
+
+```{bash}
+docker buildx build --platform linux/amd64,linux/arm64 -t {uid}/{project}:{tag} --push .
+```
