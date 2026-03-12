@@ -69,3 +69,36 @@ if (is_mac) {
 ```{bash}
 docker buildx build --platform linux/amd64,linux/arm64 -t {uid}/{project}:{tag} --push .
 ```
+
+## Using micromamba in a script without needing a system wide mamba installation:
+
+```{bash}
+        if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        ## Linux Machines
+            if [[ "$(arch)" == "aarch64" ]]; then
+                curl -Ls https://micro.mamba.pm/api/micromamba/linux-aarch64/latest |\
+                tar -xvj -C "$APP_ROOT/.payloads/" --strip-components=1 bin/micromamba
+            elif [[ "$(arch)" == "x86_64" ]]; then
+                curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest |\
+                tar -xvj -C "$APP_ROOT/.payloads/" --strip-components=1 bin/micromamba
+            fi
+        elif [[ "$OSTYPE" == "darwin"* ]]; then
+        # Mac OSX Machines
+            if [[ "$(arch)" == "arm64" ]]; then
+               curl -Ls https://micro.mamba.pm/api/micromamba/osx-arm64/latest |\
+                tar -xvj -C "$APP_ROOT/.payloads/" --strip-components=1 bin/micromamba 
+            elif [[ "$(arch)" == "x86_64" ]]; then
+               curl -Ls https://micro.mamba.pm/api/micromamba/osx-64/latest |\
+                tar -xvj -C "$APP_ROOT/.payloads/" --strip-components=1 bin/micromamba
+            fi
+        else
+          error "Only Unixed-based operating systems are supported! Consider WSL if using Windows!"
+          exit 1
+        fi
+
+  export MAMBA_ROOT_PREFIX=${APP_ROOT}/micromamba
+  eval "$(${APP_ROOT}/.payloads/micromamba shell hook --shell=bash)"
+
+  ${APP_ROOT}/.payloads/micromamba run -n {ENV} < command > [options]
+
+```
